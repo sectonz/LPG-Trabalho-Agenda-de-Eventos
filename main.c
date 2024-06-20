@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Evento{
+struct Evento *v= NULL;
+{
     struct data{
         int dia;
         int mes;
