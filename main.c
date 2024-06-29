@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 struct data{
 	int dia, mes, ano;
 };
@@ -29,6 +28,7 @@ struct evento{
 
 void limpaTela();
 void pressEnter();
+void center_print(const char *s, int width);
 void mostraEvento(struct evento *x,int n);
 int leHoraIni(struct horario *p);
 int leHoraFim(struct horario *p);
@@ -47,9 +47,29 @@ int main(int argc,char *argv[]){
     int nEventos = 0; //numero de eventos atual...
     int opcao = -1,idx=0;
     
+    const char* arte = "\t\t          __________________   __________________     \n"
+                       "\t\t      .-/|                  \\ /                  |\\-. \n"
+                       "\t\t      ||||                   |                   |||| \n"
+                       "\t\t      ||||     Trabalho 2    |                   |||| \n"
+                       "\t\t      ||||                   |       de LPG      |||| \n"
+                       "\t\t      ||||                   |                   |||| \n"
+                       "\t\t      ||||                   |                   |||| \n"
+                       "\t\t      ||||                   |                   |||| \n"
+                       "\t\t      ||||                   |                   |||| \n"
+                       "\t\t      ||||                   |                   |||| \n"
+                       "\t\t      ||||     Feito por:    |                   |||| \n"
+                       "\t\t      ||||                   |  André & Lucas    |||| \n"
+                       "\t\t      ||||__________________ | __________________|||| \n"
+                       "\t\t      ||/===================\\|/===================\\|| \n"
+                       "\t\t      `--------------------~___~-------------------''\n";
+
+
     limpaTela();
-    printf("\n\tBem vindo a sua agenda de eventos!\n\n");
-    printf("\nPressione qualquer tecla para continuar...\n");
+    printf("\n\n");
+    center_print("Bem-vindo à sua agenda de eventos!", 92);
+    printf("\n\n");
+    printf("%s\n",arte);
+    printf("\n\t\t\t   Pressione qualquer tecla para continuar...\n");
     getchar();
     limpaTela();
 
@@ -195,7 +215,22 @@ void pressEnter(){
     limpaTela();
 }
 
+void center_print(const char *s, int width){
+    int length = strlen(s);
+    int i;
 
+    for (i = 0; i <= (width - length) / 2; i++) {
+        fputs(" ", stdout);
+    }
+
+    fputs(s, stdout);
+
+    i += length;
+
+    for (; i <= width; i++) {
+        fputs(" ", stdout);
+    }
+}
 
 void mostraEvento(struct evento *x,int n){
 
@@ -263,8 +298,6 @@ int leData_v2(struct data *p){
     return 1;
 }
 
-
-
 int leHoraIni(struct horario *p){
     char entrada[6]; 
     int horas, minutos;
@@ -287,7 +320,6 @@ int leHoraIni(struct horario *p){
     p->minuto = minutos;
     return 1;
 }
-
 
 int leHoraFim(struct horario *p){
     char entrada[6]; 
@@ -350,7 +382,6 @@ int sobrepoe(struct evento a, struct evento b) {
     return 0; // Datas diferentes, sem sobreposição
 }
 
-
 int verifica_choque(struct evento x, struct evento *p, int numEventos) {
     for (int i = 0; i < numEventos; i++) {
         if (sobrepoe(x, p[i])) {
@@ -362,7 +393,6 @@ int verifica_choque(struct evento x, struct evento *p, int numEventos) {
     }
     return 1; // Sem sobreposição
 }
-
 
 void selection_sort(struct evento v[], int qtd_eventos){
     int i;
@@ -388,70 +418,59 @@ long long int id(struct evento p){
     return id;
 }
 
-// int busca_remocao(struct evento v, int nventos, struct data d, struct horario h){
-//     int i;
-//     for(i = 0; i < qtd_eventos; i++){
-//         if(comp_data(v[i].data_evento, d) && conv_horario(v[i].inicio) == conv_horario(h)){
-//             return i;
-//         }
-//     }
-//     return -1;
+// int comp_data(struct evento v, struct data d){
+    // if(v[i].)
 // }
 
-// void remove_evento(struct eventov, int qtd_eventos, int index){
-//     int i;
-//     for(i = index+1; i <qtd_eventos; i++){
-//         v[i-1] = v[i];
-//     }
-
-//     (qtd_eventos)--;
-//     v = realloc(v, sizeof(struct evento) (*qtd_eventos));
+// int busca_remocao(struct evento v, int qtd_eventos, struct data d, struct horario h){
+    // int i;
+    // for(i = 0; i < qtd_eventos; i++){
+        // if(comp_data(v[i].data_evento, d) && conv_horario(v[i].inicio) == conv_horario(h)){
+            // return i;
+        // }
+    // }
+    // return -1;
 // }
 
-//                 if(qtd_eventos == 0){
-//                     printf("Nao existem eventos cadastrados!\n");
-//                 }else{
-//                     struct data remove_data;
-//                     struct horario remove_horario;
-//                     printf("Digite a data do evento que deseja remover: \n");
-//                     if(le_data(&remove_data)){
-
-//                         printf("\nDigite o horario inicial do evento que deseja remover: \n");
-//                         if(le_horario(&remove_horario)){
-
-//                             int index = busca_remocao(v, qtd_eventos, remove_data, remove_horario);
-
-//                             if(index != -1){
-//                                 remove_evento(v, &qtd_eventos, index);
-//                                 limpa_tela();
-//                                 printf("Evento removido!\n");
-//                             }else{
-//                                 limpa_tela();
-//                                 printf("Evento nao encontrado!\n");
-//                             }
-//                         }
-//                     }
-//                 }
-
-//                 funcaoEnter();
-//             break;
-
-
-// int compararEventos(struct evento *a, struct evento *b) {
-//     if (a->dataEvento.ano != b->dataEvento.ano) {
-//         return a->dataEvento.ano - b->dataEvento.ano;
-//     }
-//     if (a->dataEvento.mes != b->dataEvento.mes) {
-//         return a->dataEvento.mes - b->dataEvento.mes;
-//     }
-//     if (a->dataEvento.dia != b->dataEvento.dia) {
-//         return a->dataEvento.dia - b->dataEvento.dia;
-//     }
-//     if (a->horaInicio.hora != b->horaInicio.hora) {
-//         return a->horaInicio.hora - b->horaInicio.hora;
-//     }
-//     return a->horaInicio.minuto - b->horaInicio.minuto;
+// void remove_evento(struct evento v, int qtd_eventos, int index){
+    // int i;
+    // for(i = index+1; i <qtd_eventos; i++){
+        // v[i-1] = v[i];
+    // }
+// 
+    // (qtd_eventos)--;
+    // v = realloc(v, sizeof(struct evento) (*qtd_eventos));
 // }
+// 
+                // if(qtd_eventos == 0){
+                    // printf("Nao existem eventos cadastrados!\n");
+                // }else{
+                    // struct data remove_data;
+                    // struct horario remove_horario;
+                    // printf("Digite a data do evento que deseja remover: \n");
+                    // if(le_data(&remove_data)){
+// 
+                        // printf("\nDigite o horario inicial do evento que deseja remover: \n");
+                        // if(le_horario(&remove_horario)){
+// 
+                            // int index = busca_remocao(v, qtd_eventos, remove_data, remove_horario);
+// 
+                            // if(index != -1){
+                                // remove_evento(v, &qtd_eventos, index);
+                                // limpa_tela();
+                                // printf("Evento removido!\n");
+                            // }else{
+                                // limpa_tela();
+                                // printf("Evento nao encontrado!\n");
+                            // }
+                        // }
+                    // }
+                // }
+
+                // funcaoEnter();
+            // break;
+
+
 
 
 
