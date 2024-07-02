@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 struct data{
 	int dia, mes, ano;
 };
@@ -28,7 +29,6 @@ struct evento{
 
 void limpaTela();
 void pressEnter();
-void center_print(const char *s, int width);
 void mostraEvento(struct evento *x,int n);
 int leHoraIni(struct horario *p);
 int leHoraFim(struct horario *p);
@@ -38,6 +38,12 @@ int leEvento(struct evento *p);
 int verifica_choque(struct evento novo, struct evento *eventos, int numEventos);
 void selection_sort(struct evento v[], int qtd_eventos);
 long long int id(struct evento p);
+int compara_datas(struct data d, struct data p);
+int converte_hora_min(struct horario h);
+int busca_indice_data(struct evento *v, int nEventos, struct data d, struct horario h);
+void remove_evento(struct evento *v, int *nEventos, int indice_rmv);
+void salva_arquivo(struct evento *v, int nEventos, char *arquivo);
+void carrega_arquivo(struct evento **v, int *nEventos, char *arquivo);
 
 int main(int argc,char *argv[]){
 
@@ -47,31 +53,13 @@ int main(int argc,char *argv[]){
     int nEventos = 0; //numero de eventos atual...
     int opcao = -1,idx=0;
     
-    const char* arte = "\t\t          __________________   __________________     \n"
-                       "\t\t      .-/|                  \\ /                  |\\-. \n"
-                       "\t\t      ||||                   |                   |||| \n"
-                       "\t\t      ||||     Trabalho 2    |                   |||| \n"
-                       "\t\t      ||||                   |       de LPG      |||| \n"
-                       "\t\t      ||||                   |                   |||| \n"
-                       "\t\t      ||||                   |                   |||| \n"
-                       "\t\t      ||||                   |                   |||| \n"
-                       "\t\t      ||||                   |                   |||| \n"
-                       "\t\t      ||||                   |                   |||| \n"
-                       "\t\t      ||||     Feito por:    |                   |||| \n"
-                       "\t\t      ||||                   |  André & Lucas    |||| \n"
-                       "\t\t      ||||__________________ | __________________|||| \n"
-                       "\t\t      ||/===================\\|/===================\\|| \n"
-                       "\t\t      `--------------------~___~-------------------''\n";
-
-
     limpaTela();
-    printf("\n\n");
-    center_print("Bem-vindo à sua agenda de eventos!", 92);
-    printf("\n\n");
-    printf("%s\n",arte);
-    printf("\n\t\t\t   Pressione qualquer tecla para continuar...\n");
+    printf("\n\tBem vindo a sua agenda de eventos!\n\n");
+    printf("\nPressione qualquer tecla para continuar...\n");
     getchar();
     limpaTela();
+
+    carrega_arquivo(&v, &nEventos, "eventos.txt");
 
     while(opcao != 6){
         printf("Escolha uma opcao:\n");
@@ -184,13 +172,37 @@ int main(int argc,char *argv[]){
                 break;
             
             case 5:
-                printf("Remover evento\n");
+                limpaTela();
+                struct data a;
+                struct horario b;
+                if(nEventos == 0){
+                    printf("Nao ha eventos para serem removidos!\n\n");
+                    pressEnter();
+                }else{
+                    if(leData_v2(&a) && leHoraIni(&b)){
+                    }else{
+                        pressEnter();
+                        break;
+                    }
+                    
+                    int indice_rmv = busca_indice_data(v, nEventos, a, b);
+                    if(indice_rmv != -1){
+                        remove_evento(v, &nEventos, indice_rmv);
+                        limpaTela();
+                        printf("Evento removido com sucesso!\n\n");
+                        pressEnter();
+                    }else{
+                        limpaTela();
+                        printf("Nao ha um evento neste horario e nesta data!\n\n");
+                        pressEnter();
+                    }
+                }
                 break;
             
             case 6:
                 limpaTela();
                 printf("Ate mais! :D\n");
-                return 0;
+                break;
             
             default:
                 limpaTela();
@@ -200,7 +212,12 @@ int main(int argc,char *argv[]){
         }
     }    
     
+    salva_arquivo(v, nEventos, "eventos.txt");
+
+    system("eventos.txt");
+
     free(v);
+
     return 0;
 }
 
@@ -215,22 +232,7 @@ void pressEnter(){
     limpaTela();
 }
 
-void center_print(const char *s, int width){
-    int length = strlen(s);
-    int i;
 
-    for (i = 0; i <= (width - length) / 2; i++) {
-        fputs(" ", stdout);
-    }
-
-    fputs(s, stdout);
-
-    i += length;
-
-    for (; i <= width; i++) {
-        fputs(" ", stdout);
-    }
-}
 
 void mostraEvento(struct evento *x,int n){
 
@@ -298,6 +300,8 @@ int leData_v2(struct data *p){
     return 1;
 }
 
+
+
 int leHoraIni(struct horario *p){
     char entrada[6]; 
     int horas, minutos;
@@ -320,6 +324,7 @@ int leHoraIni(struct horario *p){
     p->minuto = minutos;
     return 1;
 }
+
 
 int leHoraFim(struct horario *p){
     char entrada[6]; 
@@ -394,6 +399,7 @@ int verifica_choque(struct evento x, struct evento *p, int numEventos) {
     return 1; // Sem sobreposição
 }
 
+
 void selection_sort(struct evento v[], int qtd_eventos){
     int i;
     for( i = 0 ; i < qtd_eventos-1 ; i++ ){
@@ -418,94 +424,98 @@ long long int id(struct evento p){
     return id;
 }
 
-// int comp_data(struct evento v, struct data d){
-    // if(v[i].)
-// }
+int compara_datas(struct data d, struct data p){
+    if(d.dia == p.dia &&
+       d.mes == p.mes &&
+       d.ano == p.ano){
+        return 1;
+       }
+    
+    return 0;
+}
 
-// int busca_remocao(struct evento v, int qtd_eventos, struct data d, struct horario h){
-    // int i;
-    // for(i = 0; i < qtd_eventos; i++){
-        // if(comp_data(v[i].data_evento, d) && conv_horario(v[i].inicio) == conv_horario(h)){
-            // return i;
-        // }
-    // }
-    // return -1;
-// }
+int converte_hora_min(struct horario h){
+    int minutos_totais = (h.hora * 60) + h.minuto;
 
-// void remove_evento(struct evento v, int qtd_eventos, int index){
-    // int i;
-    // for(i = index+1; i <qtd_eventos; i++){
-        // v[i-1] = v[i];
-    // }
-// 
-    // (qtd_eventos)--;
-    // v = realloc(v, sizeof(struct evento) (*qtd_eventos));
-// }
-// 
-                // if(qtd_eventos == 0){
-                    // printf("Nao existem eventos cadastrados!\n");
-                // }else{
-                    // struct data remove_data;
-                    // struct horario remove_horario;
-                    // printf("Digite a data do evento que deseja remover: \n");
-                    // if(le_data(&remove_data)){
-// 
-                        // printf("\nDigite o horario inicial do evento que deseja remover: \n");
-                        // if(le_horario(&remove_horario)){
-// 
-                            // int index = busca_remocao(v, qtd_eventos, remove_data, remove_horario);
-// 
-                            // if(index != -1){
-                                // remove_evento(v, &qtd_eventos, index);
-                                // limpa_tela();
-                                // printf("Evento removido!\n");
-                            // }else{
-                                // limpa_tela();
-                                // printf("Evento nao encontrado!\n");
-                            // }
-                        // }
-                    // }
-                // }
+    return minutos_totais;
+}
 
-                // funcaoEnter();
-            // break;
+int busca_indice_data(struct evento *v, int nEventos, struct data d, struct horario h){
+    for(int i = 0; i < nEventos; i++){
+        if(compara_datas(v[i].dataEvento, d) && converte_hora_min(v[i].horaInicio) == converte_hora_min(h)){
+            return i;
+        }
+    }
+    return -1; //como o indice 0 é valido para o primeiro evento no vetor, preciso de um numero especial
+}
 
+void remove_evento(struct evento *v, int *nEventos, int indice_rmv){ //*nEventos pois preferi que a funcao modifique diretamente a variavel, sem precisar usar variaveis auxiliares depois
+    for (int i = indice_rmv; i < (*nEventos) - 1; i++) {
+        v[i] = v[i + 1];
+    }
 
+    (*nEventos)--;
+}
 
+void salva_arquivo(struct evento *v, int nEventos, char *arquivo){
 
+    FILE *f = fopen(arquivo, "wt");
+    
+    fprintf(f, "%i\n", nEventos);
+    for(int i = 0; i < nEventos; i++){
+        fprintf(f, "%i %i %i\n", v[i].dataEvento.dia, v[i].dataEvento.mes, v[i].dataEvento.ano);
 
-//CHAMAR ESSA FUNCAO NO FINAL DA MAIN ANTES DE DAR O FREE E ENCERRAR O PROGRAMA
-// void salva_arquivo( struct pessoa *v, int n, char *nome_arquivo ){
-// 	FILE *f = fopen( nome_arquivo, "wt" );
-// 	fprintf( f, "%d\n", n);	
-// 	int i;
-// 	for( i = 0 ; i < n ; i++ ){
-// 		fprintf( f, "%s\n", v[i].nome );
-// 		fprintf( f, "%d %d %d\n",
-// 				v[i].nascimento.dia, v[i].nascimento.mes, v[i].nascimento.ano);
-// 	}
-// 	fclose( f ); // Fecha o arquivo.
-// }
+        fprintf(f, "%i %i\n", v[i].horaInicio.hora, v[i].horaInicio.minuto);
 
-// void carrega_arquivo( struct pessoa **pv, int *pn, char *nome_arquivo ){
-// 	FILE *f = fopen( nome_arquivo, "rt" );
-// 	if( f == NULL ){
-// 		printf("Arquivo de cadastro nao encontrado!\n");
-// 		return;
-// 	}
-// 	fscanf( f, "%d", pn);
-	
-// 	*pv = malloc( sizeof(struct pessoa) * *pn);
-	
-// 	int i;
-// 	for( i = 0 ; i < *pn ; i++ ){
-// 		fscanf( f, " %[^\n]", (*pv)[i].nome );
-// 		fscanf( f, "%d %d %d",
-// 				(*pv)[i].nascimento.dia, (*pv)[i].nascimento.mes, (*pv)[i].nascimento.ano);
-// 	}
-// 	fclose( f ); // Fecha o arquivo.	
-	
-// }
+        fprintf(f, "%i %i\n", v[i].horaFim.hora, v[i].horaFim.minuto);
 
-    // R- > READ, W -> WRITE, T-> TEXT, B -> BINARY
-    //fopen("nome do arquivo","modo de abertura")
+        fprintf(f, "%s\n", v[i].descricao);
+
+        fprintf(f, "%s\n", v[i].local);
+    }
+    
+    fclose(f);
+}
+
+void carrega_arquivo(struct evento **v, int *nEventos, char *arquivo){
+    limpaTela();
+    printf("Abrindo arquivo...\n");
+    FILE *f = fopen(arquivo, "rt");
+
+    if(f == NULL) {
+        printf("\nArquivo de cadastro nao encontrado!\n\n");
+        pressEnter();
+    }else{
+        fscanf(f, "%i", nEventos); //a primeira linha do arquivo deve conter a quantidade de eventos
+        *v = malloc(sizeof(struct evento)*(*nEventos));
+
+        for(int i = 0; i < *nEventos; i++){
+            fscanf(f, "%i %i %i",
+                &(*v)[i].dataEvento.dia, &(*v)[i].dataEvento.mes, &(*v)[i].dataEvento.ano);
+            
+            fscanf(f, "%i %i",
+                &(*v)[i].horaInicio.hora, &(*v)[i].horaInicio.minuto);
+
+            fscanf(f, "%i %i",
+                &(*v)[i].horaFim.hora, &(*v)[i].horaFim.minuto);
+
+            fscanf(f, " %[^\n]", (*v)[i].descricao);
+
+            fscanf(f, " %[^\n]", (*v)[i].local);
+        }
+
+        /*arquivo deve estar escrito na forma:
+        quantidade de eventos no arquivo -> numero -> 1
+        data do evento -> dia mes ano -> 01 01 2024
+        hora de inicio -> hora minuto -> 16 30
+        hora de fim -> hora minuto -> 17 30
+        descricao -> string
+        local -> string
+        */
+
+        fclose(f); 
+
+        printf("\n%i eventos carregados do arquivo!\n\n", *nEventos);
+        pressEnter();
+    }
+}
