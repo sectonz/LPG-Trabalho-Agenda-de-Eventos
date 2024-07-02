@@ -179,9 +179,9 @@ int main(int argc,char *argv[]){
                     printf("Nao ha eventos para serem removidos!\n\n");
                     pressEnter();
                 }else{
-                    if(leData_v2(&a)){
-                        leHoraIni(&b);
+                    if(leData_v2(&a) && leHoraIni(&b)){
                     }else{
+                        pressEnter();
                         break;
                     }
                     
@@ -202,7 +202,7 @@ int main(int argc,char *argv[]){
             case 6:
                 limpaTela();
                 printf("Ate mais! :D\n");
-                return 0;
+                break;
             
             default:
                 limpaTela();
